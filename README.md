@@ -1,7 +1,5 @@
-# DoodlePython
-Doodle Python
-
-## SAT Branch
+# Separation Axis theorem
+## Goal
 - Strong learn Separation Axis theorem
 - Visualization for easy understanding
 - Used Python
