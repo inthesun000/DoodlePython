@@ -1,7 +1,7 @@
 # Separation Axis theorem
 ## Goal
 - Strong learn Separation Axis theorem
-- Visualization for easy understanding
+- Visualization projection and axes for easy understanding
 - Used Python
 
 > case collide, Screenshot
