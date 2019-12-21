@@ -186,7 +186,7 @@ plt.grid(True)
 
 #Shape and SAT
 
-#case 1 : don't collide
+#case 1 : not collide
 vertexPoints1 = np.array([[2,2], [6,5], [3,6]])
 vertexPoints2 = np.array([[6,7], [6,10], [8,14], [10,10]])
 #case 2 : collide
