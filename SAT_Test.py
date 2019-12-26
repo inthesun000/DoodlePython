@@ -6,6 +6,10 @@ from matplotlib.ticker import (AutoMinorLocator, MultipleLocator)
 '''
 Separation axis theorem
 # site about : http://www.dyn4j.org/2010/01/sat/
+
+#TODO - 2019.12.26
+    1) Refactoring part drawing
+    2) Fix Tuple or List?
 '''
 def normalize(v):
     from math import sqrt
