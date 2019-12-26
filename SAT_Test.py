@@ -148,17 +148,18 @@ def projPointOnLine(p, q, v):
     point = p + mul(v,(proj/vsq))
     return point
 
-def drawLineOnAxis(verteis, p, axis, edge, size, c):
+def drawLineOnAxis(verteis, p, axis, edge, size, drawingSide, a, c):
     minV1, maxV1 = getProjectionMinMaxVertex(verteis, axis)
 
     p1 = projPointOnLine(p, minV1, axis)
     p2 = projPointOnLine(p, maxV1, axis)
 
-    drawTargetToTargetLine(p1, p2, c, a=0.5)
-    drawTargetToTargetLine(minV1, p1, c=[0.2,0.5,0], a=0.2)
-    drawTargetToTargetLine(maxV1, p2, c=[0.4,0,1], a=0.2)
-    
+    drawTargetToTargetLine(p1, p2, c, a)
 
+    if drawingSide:
+        drawTargetToTargetLine(minV1, p1, c=[0.2,0.5,0], a=0.2)
+        drawTargetToTargetLine(maxV1, p2, c=[0.4,0,1], a=0.2)
+    
 def SAT(vertiesA, vertiesB):
     center1 = getCenter(vertiesA)
     center2 = getCenter(vertiesB)
@@ -173,13 +174,15 @@ def SAT(vertiesA, vertiesB):
     edges = edges1 + edges2
     
     for i in range(len(axes)):
-        drawLineOnAxis(vertiesA, arrows[i], axes[i], edges[i], lenC, c=[1,0,0])
-        drawLineOnAxis(vertiesB, arrows[i], axes[i], edges[i], lenC, c=[0,1,0])
+        drawLineOnAxis(vertiesA, arrows[i], axes[i], edges[i], lenC, True, 0.6, c=[1,0,0])
+        drawLineOnAxis(vertiesB, arrows[i], axes[i], edges[i], lenC, True, 0.6, c=[0,1,0])
       
         p1 = projection(vertiesA, axes[i])
         p2 = projection(vertiesB, axes[i])
         overlapping = overlap(p1, p2)
         if not overlapping:
+            drawLineOnAxis(vertiesA, arrows[i], axes[i], edges[i], lenC, False, 1, c=[1,0,1])
+            drawLineOnAxis(vertiesB, arrows[i], axes[i], edges[i], lenC, False, 1, c=[1,0,1])
             return False       
     return True
 
@@ -208,13 +211,13 @@ plt.grid(True)
 #Shape and SAT
 
 #case 1 : not collide
-#vertexPoints1 = np.array([[2,2], [6,5], [3,6]])
+vertexPoints1 = np.array([[2,2], [6,5], [3,6]])
 #vertexPoints2 = np.array([[6,7], [6,10], [8,14], [10,10]])
 #case 2 : collide
 #vertexPoints1 = np.array([[2,6], [3,0], [7,6]])
 vertexPoints2 = np.array([[10,10], [9,2], [5,8]])
 #case 3 : box collide
-vertexPoints1 = np.array([[2,0], [2,6], [5,6], [5,0]])
+#vertexPoints1 = np.array([[2,0], [2,6], [5,6], [5,0]])
 #vertexPoints2 = np.array([[6,7], [6,10], [8,14], [10,10]])
 
 shape1 = Polygon(vertexPoints1, closed=True, fill=False, color=[0.5,0.3,0.0])
