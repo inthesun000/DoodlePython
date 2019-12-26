@@ -18,6 +18,9 @@ def orthogonal(v):
 def mul(v2, s):
     return (v2[0] * s, v2[1]*s)
 
+def mulV2(v1, v2):
+    return (v1[0] * v2[0], v1[1]*v2[1])
+
 def dot(x1, x2):
     return x1[0] * x2[0] + x1[1] * x2[1]
 
@@ -79,6 +82,19 @@ def getCenter(verties):
     cen = cen / len(verties)
     return cen
 
+def same(a,b) :
+    import math
+    if math.isclose(a, b):
+        return True
+    return False
+
+def find(list, value):
+    import math
+    for v in list:
+        if same(abs(v[0]), abs(value[0])) and same (abs(v[1]), abs(value[1])):
+            return True
+    return False
+
 def getAxis(points, n, size):
     axis = []
     arrows = []
@@ -88,21 +104,23 @@ def getAxis(points, n, size):
         if j > (len(points)-1) : j = j%(len(points))
         edge = normalize(points[j] - points[i])
         normal = orthogonal(edge)
-        axis.append(normal)
-        # draw edge and long edge
-        k = i+2
-        if k > (len(points)-1) : k = k%(len(points))
+        if not find(axis, normal) :
+            axis.append(normal)
+            # draw edge and long edge
+            k = i+2
+            if k > (len(points)-1) : k = k%(len(points))
 
-        projectionJ = points[j] + mul(edge,size)
-        projectionK = points[k] + mul(edge,size)
+            projectionJ = points[j] + mul(edge,size)
 
-        orthogonalMin = getTranslate(projectionJ, normal, 100)
-        orthogonalMax = getTranslate(projectionJ, normal, -100)    
-        
-        # draw Axis
-        edges.append(edge)
-        drawTargetToTargetLine(orthogonalMin, orthogonalMax, c=[0.2, 0.3*n, 0.5*n], a=0.6)
-        arrows.append([orthogonalMin, orthogonalMax])
+            orthogonalMin = getTranslate(projectionJ, normal, 100)
+            orthogonalMax = getTranslate(projectionJ, normal, -100)    
+
+            # draw Axis
+            edges.append(edge)
+            arrows.append(projectionJ)
+            
+            drawTargetToTargetLine(orthogonalMin, orthogonalMax, c=[0.2, 0.3*n, 0.5*n], a=0.6)
+    #print(axis)
     return axis, arrows, edges
 
 def getProjectionMinMaxVertex(verties, axis):
@@ -121,18 +139,24 @@ def getProjectionMinMaxVertex(verties, axis):
 
     return minPos, maxPos    
 
-def drawLineOnAxis(verteis, axis, edge, arrowMinMax, c):
+def projPointOnLine(p, q, v):        
+    w = q-p
+
+    vsq = dot(v, v)
+    proj = dot(w, v)
+            
+    point = p + mul(v,(proj/vsq))
+    return point
+
+def drawLineOnAxis(verteis, p, axis, edge, size, c):
     minV1, maxV1 = getProjectionMinMaxVertex(verteis, axis)
-       
-    v1 = getTranslate(minV1, edge, 100)
-    v2 = getTranslate(maxV1, edge, 100)
 
-    intersectP1 = intersectPoint(minV1, v1, arrowMinMax[0], arrowMinMax[1])
-    intersectP2 = intersectPoint(maxV1, v2, arrowMinMax[0], arrowMinMax[1])
+    p1 = projPointOnLine(p, minV1, axis)
+    p2 = projPointOnLine(p, maxV1, axis)
 
-    drawTargetToTargetLine(intersectP1, intersectP2, c, a=0.5)
-    drawTargetToTargetLine(minV1, intersectP1, c=[0.2,0.5,0], a=0.2)
-    drawTargetToTargetLine(maxV1, intersectP2, c=[0.4,0,1], a=0.2)
+    drawTargetToTargetLine(p1, p2, c, a=0.5)
+    drawTargetToTargetLine(minV1, p1, c=[0.2,0.5,0], a=0.2)
+    drawTargetToTargetLine(maxV1, p2, c=[0.4,0,1], a=0.2)
     
 
 def SAT(vertiesA, vertiesB):
@@ -149,16 +173,13 @@ def SAT(vertiesA, vertiesB):
     edges = edges1 + edges2
     
     for i in range(len(axes)):
-        drawLineOnAxis(vertiesA, axes[i], edges[i], arrows[i], c=[1,0,0])
-        drawLineOnAxis(vertiesB, axes[i], edges[i], arrows[i], c=[0,1,0])
+        drawLineOnAxis(vertiesA, arrows[i], axes[i], edges[i], lenC, c=[1,0,0])
+        drawLineOnAxis(vertiesB, arrows[i], axes[i], edges[i], lenC, c=[0,1,0])
       
         p1 = projection(vertiesA, axes[i])
         p2 = projection(vertiesB, axes[i])
         overlapping = overlap(p1, p2)
         if not overlapping:
-            axisLine = arrows[i]
-            drawTargetToTargetLine(axisLine[0], axisLine[1], c=[1,0,1], a=1)
-            print(axisLine)
             return False       
     return True
 
@@ -187,11 +208,14 @@ plt.grid(True)
 #Shape and SAT
 
 #case 1 : not collide
-vertexPoints1 = np.array([[2,2], [6,5], [3,6]])
-vertexPoints2 = np.array([[6,7], [6,10], [8,14], [10,10]])
+#vertexPoints1 = np.array([[2,2], [6,5], [3,6]])
+#vertexPoints2 = np.array([[6,7], [6,10], [8,14], [10,10]])
 #case 2 : collide
 #vertexPoints1 = np.array([[2,6], [3,0], [7,6]])
-#vertexPoints2 = np.array([[10,10], [9,2], [5,8]])
+vertexPoints2 = np.array([[10,10], [9,2], [5,8]])
+#case 3 : box collide
+vertexPoints1 = np.array([[2,0], [2,6], [5,6], [5,0]])
+#vertexPoints2 = np.array([[6,7], [6,10], [8,14], [10,10]])
 
 shape1 = Polygon(vertexPoints1, closed=True, fill=False, color=[0.5,0.3,0.0])
 shape2 = Polygon(vertexPoints2, closed=True, fill=False, color=[0.5,0.2,0.5])
